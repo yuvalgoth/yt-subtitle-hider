@@ -56,16 +56,20 @@
 
     .subtitle-mask {
       position: absolute;
-      left: 10%;
-      width: 80%;
-      bottom: 8%;
-      height: 18%;
-      background: black;
-      opacity: 1;
+      left: 0;
+      width: 100%;
+      bottom: 0;
+      height: 25%;
       pointer-events: none;
-      border-radius: 8px;
+    
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.9) 0%,
+        rgba(0,0,0,0.6) 40%,
+        rgba(0,0,0,0.2) 70%,
+        rgba(0,0,0,0) 100%
+      );
     }
-
     .hint {
       color: #aaa;
       margin-top: 10px;
