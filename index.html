@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YouTube Subtitle Hider</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 16px;
+      background: #111;
+      color: #eee;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    input, button, select {
+      font-size: 16px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #1c1c1c;
+      color: #eee;
+    }
+
+    input {
+      flex: 1 1 500px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .player-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: black;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .subtitle-mask {
+      position: absolute;
+      left: 10%;
+      width: 80%;
+      bottom: 8%;
+      height: 18%;
+      background: black;
+      opacity: 1;
+      pointer-events: none;
+      border-radius: 8px;
+    }
+
+    .hint {
+      color: #aaa;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>YouTube Subtitle Hider</h1>
+
+  <div class="row">
+    <input id="ytUrl" placeholder="Paste YouTube link here" />
+    <button onclick="loadVideo()">Load</button>
+  </div>
+
+  <div class="row">
+    <label for="maskHeight">Mask height</label>
+    <select id="maskHeight" onchange="updateMask()">
+      <option value="12">Small</option>
+      <option value="18" selected>Medium</option>
+      <option value="24">Large</option>
+      <option value="30">Extra large</option>
+    </select>
+
+    <label for="maskBottom">Mask position</label>
+    <select id="maskBottom" onchange="updateMask()">
+      <option value="5">Low</option>
+      <option value="8" selected>Normal</option>
+      <option value="12">Higher</option>
+    </select>
+  </div>
+
+  <div class="player-wrap">
+    <iframe
+      id="player"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      src="">
+    </iframe>
+    <div id="mask" class="subtitle-mask"></div>
+  </div>
+
+  <p class="hint">
+    This covers the usual subtitle area. It does not remove subtitles that are burned into the picture itself.
+  </p>
+
+  <script>
+    function extractVideoId(url) {
+      try {
+        const u = new URL(url);
+
+        if (u.hostname.includes("youtu.be")) {
+          return u.pathname.slice(1);
+        }
+
+        if (u.hostname.includes("youtube.com")) {
+          if (u.searchParams.get("v")) return u.searchParams.get("v");
+
+          const parts = u.pathname.split("/");
+          const embedIndex = parts.indexOf("embed");
+          const shortsIndex = parts.indexOf("shorts");
+
+          if (embedIndex !== -1 && parts[embedIndex + 1]) return parts[embedIndex + 1];
+          if (shortsIndex !== -1 && parts[shortsIndex + 1]) return parts[shortsIndex + 1];
+        }
+      } catch (e) {}
+
+      if (/^[a-zA-Z0-9_-]{11}$/.test(url.trim())) {
+        return url.trim();
+      }
+
+      return null;
+    }
+
+    function loadVideo() {
+      const input = document.getElementById("ytUrl").value.trim();
+      const id = extractVideoId(input);
+
+      if (!id) {
+        alert("Could not extract a YouTube video ID.");
+        return;
+      }
+
+      const src =
+        `https://www.youtube.com/embed/${id}?rel=0&playsinline=1`;
+
+      document.getElementById("player").src = src;
+    }
+
+    function updateMask() {
+      const h = document.getElementById("maskHeight").value;
+      const b = document.getElementById("maskBottom").value;
+      const mask = document.getElementById("mask");
+
+      mask.style.height = h + "%";
+      mask.style.bottom = b + "%";
+    }
+  </script>
+</body>
+</html>
